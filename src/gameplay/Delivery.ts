@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Ball } from '../entities/Ball';
-import type { Cricketer, ShotKind } from '../entities/Cricketer';
+import type { ShotKind } from '../entities/Cricketer';
+import type { HumanCricketer } from '../entities/HumanCricketer';
 import { stepBall } from '../physics/Integrator';
 import { planRelease } from '../physics/Release';
 import { resolveBatContact, type BatSwing, type ContactResult } from '../physics/BatContact';
@@ -97,9 +98,9 @@ export interface DeliveryContext {
   boundary: number;
   ball: Ball;
   ballWear: number;
-  bowler: Cricketer;
-  strikerEnt: Cricketer;
-  nonStrikerEnt: Cricketer;
+  bowler: HumanCricketer;
+  strikerEnt: HumanCricketer;
+  nonStrikerEnt: HumanCricketer;
   fielding: FieldingSim;
   keeper: FielderEnt;
   bowlerEnt: FielderEnt;

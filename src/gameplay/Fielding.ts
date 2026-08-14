@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { Cricketer } from '../entities/Cricketer';
+import type { HumanCricketer } from '../entities/HumanCricketer';
 import type { PlayerSpec } from '../cricket/Types';
 import type { BallState } from '../physics/BallState';
 import type { PitchProperties } from '../physics/PitchSurface';
@@ -14,7 +14,7 @@ export type FielderState = 'idle' | 'chase' | 'collect' | 'throwing' | 'dive' | 
 
 export interface FielderEnt {
   spec: PlayerSpec;
-  cricketer: Cricketer;
+  cricketer: HumanCricketer;
   slotName: string;
   home: THREE.Vector3;
   state: FielderState;
@@ -46,7 +46,7 @@ export interface FieldingEvents {
 
 const OUTFIELD: PitchProperties = { restitution: 0.42, friction: 0.75, seamCatchiness: 0.05, hardness: 0.6, label: 'outfield' };
 
-export function makeFielder(spec: PlayerSpec, cricketer: Cricketer, slotName: string, x: number, z: number): FielderEnt {
+export function makeFielder(spec: PlayerSpec, cricketer: HumanCricketer, slotName: string, x: number, z: number): FielderEnt {
   const rating = spec.ratings.fielding;
   return {
     spec,

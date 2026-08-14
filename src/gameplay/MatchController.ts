@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { Cricketer, skinToneFor } from '../entities/Cricketer';
+import { skinToneFor } from '../entities/Cricketer';
+import { HumanCricketer } from '../entities/HumanCricketer';
 import { Ball } from '../entities/Ball';
 import { buildStumps } from '../world/Stumps';
 import { BOWLER_STUMPS_Z, STRIKER_STUMPS_Z } from '../world/Pitch';
@@ -107,11 +108,12 @@ export class MatchController {
   private bowlerEnt!: FielderEnt;
   private fielders: FielderEnt[] = [];
   private fielding!: FieldingSim;
-  private strikerEnt!: Cricketer;
-  private nonStrikerEnt!: Cricketer;
-  private bowlerCricketer!: Cricketer;
-  private umpireMain!: Cricketer;
-  private umpireSquare!: Cricketer;
+  private strikerEnt!: HumanCricketer;
+  private nonStrikerEnt!: HumanCricketer;
+  private bowlerCricketer!: HumanCricketer;
+  private umpireMain!: HumanCricketer;
+  private umpireSquare!: HumanCricketer;
+  private humanEnts: HumanCricketer[] = [];
   private delivery: Delivery | null = null;
   private currentBowler: PlayerSpec | null = null;
   private field: FieldPlacement = FIELD_PRESETS.odiStandard;
@@ -202,8 +204,8 @@ export class MatchController {
     const fieldShirt = coloredKits ? bowlTeam.color : 0xf5f5f0;
     const fieldTrousers = coloredKits ? bowlTeam.color : 0xf5f5f0;
 
-    const mkBatter = (spec: PlayerSpec): Cricketer =>
-      new Cricketer({
+    const mkBatter = (spec: PlayerSpec): HumanCricketer =>
+      new HumanCricketer({
         shirt: batShirt,
         trousers: batTrousers,
         skin: skinToneFor(spec.id),
@@ -211,35 +213,47 @@ export class MatchController {
         pads: true,
         withBat: true,
         scale: 0.97 + (Math.abs(hashCode(spec.id)) % 100) / 1400,
+        seed: Math.abs(hashCode(spec.id)) || 7,
+        surname: spec.shortName,
+        number: (Math.abs(hashCode(spec.id)) % 97) + 1,
       });
     this.strikerEnt = mkBatter(inn.striker().spec);
     this.nonStrikerEnt = mkBatter(inn.nonStriker().spec);
     this.ents.add(this.strikerEnt.root, this.nonStrikerEnt.root);
+    this.humanEnts = [this.strikerEnt, this.nonStrikerEnt];
 
     const keeperSpec = bowlTeam.players.find((p) => p.role === 'keeper')!;
-    const keeperCricketer = new Cricketer({
+    const keeperCricketer = new HumanCricketer({
       shirt: fieldShirt,
       trousers: fieldTrousers,
       skin: skinToneFor(keeperSpec.id),
       cap: bowlTeam.color,
       pads: true,
       scale: 0.99,
+      seed: Math.abs(hashCode(keeperSpec.id)) || 11,
+      surname: keeperSpec.shortName,
+      number: (Math.abs(hashCode(keeperSpec.id)) % 97) + 1,
     });
     this.keeper = makeFielder(keeperSpec, keeperCricketer, 'keeper', 0.6, STRIKER_STUMPS_Z + 1.9);
     this.keeper.cricketer.root.position.copy(this.keeper.home);
     this.ents.add(keeperCricketer.root);
+    this.humanEnts.push(keeperCricketer);
 
     const bowlerSpec = this.currentBowler ?? this.pickNextBowler();
     this.currentBowler = bowlerSpec;
-    this.bowlerCricketer = new Cricketer({
+    this.bowlerCricketer = new HumanCricketer({
       shirt: fieldShirt,
       trousers: fieldTrousers,
       skin: skinToneFor(bowlerSpec.id),
       cap: bowlTeam.color,
       scale: 1.0 + (Math.abs(hashCode(bowlerSpec.id)) % 100) / 2000,
+      seed: Math.abs(hashCode(bowlerSpec.id)) || 13,
+      surname: bowlerSpec.shortName,
+      number: (Math.abs(hashCode(bowlerSpec.id)) % 97) + 1,
     });
     this.bowlerEnt = makeFielder(bowlerSpec, this.bowlerCricketer, 'bowler', 0.4, BOWLER_STUMPS_Z - 1.2);
     this.ents.add(this.bowlerCricketer.root);
+    this.humanEnts.push(this.bowlerCricketer);
 
     // 9 outfielders from the remaining players.
     const remaining = bowlTeam.players.filter((p) => p.id !== keeperSpec.id && p.id !== bowlerSpec.id);
@@ -248,18 +262,22 @@ export class MatchController {
       const spec = remaining[i % remaining.length];
       const slot = this.field.slots[i];
       const w = slotToWorld(slot);
-      const cr = new Cricketer({
+      const cr = new HumanCricketer({
         shirt: fieldShirt,
         trousers: fieldTrousers,
         skin: skinToneFor(spec.id),
         cap: bowlTeam.color,
         scale: 0.96 + (Math.abs(hashCode(spec.id)) % 100) / 1600,
+        seed: Math.abs(hashCode(spec.id)) || 17,
+        surname: spec.shortName,
+        number: (Math.abs(hashCode(spec.id)) % 97) + 1,
       });
       const ent = makeFielder(spec, cr, slot.name, w.x, w.z);
       cr.root.position.set(w.x, 0, w.z);
       cr.faceToward(0.4, STRIKER_STUMPS_Z - 1);
       this.fielders.push(ent);
       this.ents.add(cr.root);
+      this.humanEnts.push(cr);
     }
 
     this.fielding = new FieldingSim(
@@ -285,13 +303,14 @@ export class MatchController {
     );
 
     // Umpires.
-    this.umpireMain = new Cricketer({ shirt: 0x26303a, trousers: 0x26303a, skin: 0xd9a066, cap: 0x26303a, scale: 1.0 });
+    this.umpireMain = new HumanCricketer({ shirt: 0x26303a, trousers: 0x26303a, skin: 0xd9a066, cap: 0x26303a, scale: 1.0, seed: 9201 });
     this.umpireMain.root.position.set(0.62, 0, BOWLER_STUMPS_Z - 1.35);
     this.umpireMain.root.rotation.y = 0;
-    this.umpireSquare = new Cricketer({ shirt: 0x26303a, trousers: 0x26303a, skin: 0x8d5524, cap: 0x26303a, scale: 0.99 });
+    this.umpireSquare = new HumanCricketer({ shirt: 0x26303a, trousers: 0x26303a, skin: 0x8d5524, cap: 0x26303a, scale: 0.99, seed: 4177 });
     this.umpireSquare.root.position.set(14, 0, STRIKER_STUMPS_Z + 1.5);
     this.umpireSquare.faceToward(0, STRIKER_STUMPS_Z);
     this.ents.add(this.umpireMain.root, this.umpireSquare.root);
+    this.humanEnts.push(this.umpireMain, this.umpireSquare);
 
     // Fresh batter brain for AI batting sides.
     this.batterBrain = null;
@@ -641,6 +660,13 @@ export class MatchController {
   update(dt: number): void {
     if (this.paused) return;
     const inn = this.match.current();
+
+    // HumanKit: per-frame animation update + ball head-tracking
+    const ballPos = this.ballPosition();
+    for (const h of this.humanEnts) {
+      h.trackBall(ballPos);
+      h.update(dt);
+    }
 
     if (this.umpireSignal) {
       this.umpireSignal.t += dt;
