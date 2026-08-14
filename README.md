@@ -6,6 +6,25 @@ event: seam presentation, swing (conventional and reverse), spin, pitch interact
 bat–ball collision, fielding, throwing and running between wickets are all simulated,
 not scripted.
 
+## Humans — powered by Xirtus HumanKit
+
+Every player on the field is a **Xirtus HumanKit** human (`@xirtus/humankit`, sibling
+package at `../xirtus-humankit`): a seeded, parametric, fully rigged character on the
+canonical `XIRTUS_HUMANOID_V1` skeleton — skinned body, face with real eyes, hair,
+team kit printed with actual names and numbers, pads/gloves/helmets/caps as
+socket-mounted equipment, and a 74-clip animation vault (locomotion, sports,
+cricket-specific shots/bowling/keeping/umpiring). Identities are deterministic per
+player id, batters render at HERO tier, and ball-tracking IK keeps heads and eyes
+on the play.
+
+```
+Mixamo / MetaHuman / MakeHuman / BVH mocap ──► XIRTUS_HUMANOID_V1 ──► HumanKit ──► this game
+```
+
+The same package drops into any Three.js game: `import { createAthlete, PRESETS } from '@xirtus/humankit'`.
+See `../xirtus-humankit/README.md`, the Character Lab (`cd ../xirtus-humankit && npm run lab`),
+and `../xirtus-humankit/ASSET_ACQUISITION.md` for mocap enrichment.
+
 ## Play
 
 ```bash
