@@ -663,8 +663,13 @@ export class MatchController {
     if (this.paused) return;
     const inn = this.match.current();
 
-    // HumanKit: per-frame animation update + ball head-tracking
-    const ballPos = this.ballPosition();
+    // HumanKit: per-frame animation update + ball head-tracking.
+    // Track only when the ball is genuinely LIVE (a real delivery in motion);
+    // parked/dead balls (mesh parked at origin) must never drag heads around.
+    const dp = this.delivery?.phase;
+    const livePhase = dp === 'runup' || dp === 'action' || dp === 'flight' || dp === 'inplay';
+    const live = (this.phase === 'delivering' && livePhase) || this.phase === 'replay';
+    const ballPos = live ? this.ballPosition() : null;
     for (const h of this.humanEnts) {
       h.trackBall(ballPos);
       h.update(dt);

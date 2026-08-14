@@ -7,7 +7,7 @@ await page.evaluate(() => {
   const k = window.__kriket;
   k.fastForward(0.5);
   k.unfreezeCam();
-  k.freeCam(2.6, 1.5, 7.4, 0.45, 1.1, 9.5);   // front-side on the striker
+  k.freeCam(1.7, 1.5, 7.2, 0.45, 1.45, 9.5);   // front-side on the striker
   k.engine.renderFrame();
 });
 await page.screenshot({ path: 'qa/shots/stance_check.png' });
