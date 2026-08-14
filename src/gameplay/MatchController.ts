@@ -672,9 +672,15 @@ export class MatchController {
 
     if (this.umpireSignal) {
       this.umpireSignal.t += dt;
-      if (this.umpireSignal.t > 0) {
+      if (this.umpireSignal.t > 0 && this.umpireSignal.t < 2.6) {
         this.umpireMain.umpireSignal(this.umpireSignal.kind, this.umpireSignal.t);
+      } else if (this.umpireSignal.t >= 2.6) {
+        // signal over: relax back to a neutral stand
+        this.umpireMain.idleStand(performance.now() / 1000);
       }
+    } else {
+      this.umpireMain?.idleStand(performance.now() / 1000);
+      this.umpireSquare?.idleStand(performance.now() / 1000);
     }
 
     switch (this.phase) {

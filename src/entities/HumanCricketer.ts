@@ -202,6 +202,11 @@ export class HumanCricketer {
     this.scrubNow('cricket_appeal', Math.min(1, t / 1.6));
   }
 
+  /** relaxed neutral stand (umpires between signals, anyone idling) */
+  idleStand(t: number): void {
+    this.scrubNow('idle', ((t / 4.0) % 1 + 1) % 1);
+  }
+
   umpireSignal(kind: 'out' | 'four' | 'six' | 'wide' | 'legbye' | 'dead', t: number): void {
     const clip = kind === 'dead' ? 'cricket_umpire_deadball' : `cricket_umpire_${kind}`;
     this.scrubNow(clip, Math.min(1, t / 1.6));
