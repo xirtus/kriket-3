@@ -215,6 +215,7 @@ export class MatchController {
         scale: 0.97 + (Math.abs(hashCode(spec.id)) % 100) / 1400,
         seed: Math.abs(hashCode(spec.id)) || 7,
         surname: spec.shortName,
+        longSleeve: this.setup.format === 'TEST',
         number: (Math.abs(hashCode(spec.id)) % 97) + 1,
       });
     this.strikerEnt = mkBatter(inn.striker().spec);
@@ -236,6 +237,7 @@ export class MatchController {
     });
     this.keeper = makeFielder(keeperSpec, keeperCricketer, 'keeper', 0.6, STRIKER_STUMPS_Z + 1.9);
     this.keeper.cricketer.root.position.copy(this.keeper.home);
+    this.keeper.cricketer.faceToward(0.4, STRIKER_STUMPS_Z - 1);
     this.ents.add(keeperCricketer.root);
     this.humanEnts.push(keeperCricketer);
 

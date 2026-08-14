@@ -30,19 +30,23 @@ export class HumanCricketer {
   readonly human: Human;
   readonly root: THREE.Group;
   readonly height: number;
+  static tierOverride: 'hero' | 'gameplay' | null = null;
   private celebrateMode = '';
   private ballTarget: THREE.Vector3 | null = null;
   private batObj: THREE.Group | null = null;
   private aimYaw = 0;
 
-  constructor(opts: CricketerOptions & { seed?: number; surname?: string; number?: number }) {
+  constructor(opts: CricketerOptions & { seed?: number; surname?: string; number?: number; longSleeve?: boolean }) {
     const seed = opts.seed ?? 1;
     const kit: TeamKit = {
       primary: opts.shirt, secondary: opts.trousers, accent: 0xf5f5f0,
       surname: opts.surname, number: opts.number,
     };
     const skinIdx = nearestSkinIndex(opts.skin);
-    this.human = createAthlete(seed, { tier: 'gameplay' });
+    this.human = createAthlete(seed, {
+      tier: HumanCricketer.tierOverride ?? (opts.withBat ? 'hero' : 'gameplay'),
+      sleeve: opts.longSleeve ? 'long' : 'short',
+    });
     this.human.dna.skinTone = skinIdx; // note: DNA skinTone is baked at build; kept for report fidelity
     this.human.setTeamKit(kit);
     // height parity with the old scale option
@@ -62,9 +66,9 @@ export class HumanCricketer {
       this.human.equip(gloves.right, 'hand_r', { pos: new THREE.Vector3(-0.03, -0.035, 0), rot: new THREE.Euler(0, 0, -0.785) });
     }
     if (opts.helmet != null) {
-      this.human.equip(makeHelmet(opts.helmet), 'socket_head', { pos: new THREE.Vector3(0, 0.055, 0.005) });
+      this.human.equip(makeHelmet(opts.helmet), 'socket_head', { pos: new THREE.Vector3(0, 0.012, 0.004) });
     } else if (opts.cap != null) {
-      this.human.equip(makeCap(opts.cap), 'socket_head', { pos: new THREE.Vector3(0, 0.075, 0.002) });
+      this.human.equip(makeCap(opts.cap), 'socket_head', { pos: new THREE.Vector3(0, 0.030, 0.004) });
     }
     this.human.enableGroundAlign(() => 0);
   }
