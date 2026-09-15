@@ -230,8 +230,7 @@ async function main(): Promise<void> {
     audio.update(dt);
     if (controller && !paused) {
       controller.update(dt);
-      const ballPos = controller.ballPosition();
-      cameras.update(dt, ballPos);
+      cameras.update(dt, controller.cameraBall());
     }
   });
 

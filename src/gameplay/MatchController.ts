@@ -134,6 +134,9 @@ export class MatchController {
   allowReplays = false;
   private onMatchEnd: (() => void) | null = null;
   private playerBatting = true;
+  /** Batting camera preference, cycled with V: broadcast → behind → helmet. */
+  private batCam: 'tv' | 'behindBatter' | 'helmet' = 'behindBatter';
+  private liveBallPos: THREE.Vector3 | null = null;
   private readonly diff: DifficultyScales;
   private deliveryCount = 0;
   private ballSteps = 0;
@@ -176,6 +179,18 @@ export class MatchController {
     this.buildInningsEntities();
     this.updateScorebug();
     this.updateHint();
+
+    // Camera anchors: helmet cam rides the striker's head; pre-delivery the
+    // batter (and the cam) watches the bowler, not a parked ball.
+    this.deps.cameras.helmetEye = (out) => {
+      const head = this.strikerEnt.human.bone('head');
+      head.updateWorldMatrix(true, false);
+      out.setFromMatrixPosition(head.matrixWorld);
+    };
+    this.deps.cameras.watchPoint = (out) => {
+      out.copy(this.bowlerCricketer.root.position);
+      out.y = 1.9;
+    };
   }
 
   setOnMatchEnd(cb: () => void): void {
@@ -188,6 +203,28 @@ export class MatchController {
 
   ballPosition(): THREE.Vector3 | null {
     return this.ball?.mesh.position ?? null;
+  }
+
+  /** Ball position only while genuinely live — cameras must never chase a parked ball. */
+  cameraBall(): THREE.Vector3 | null {
+    return this.liveBallPos;
+  }
+
+  /**
+   * Frame up the next delivery. When the human bats (or we're spectating), use
+   * the chosen batting view — the batter-vs-stumps contest is the picture;
+   * when the human bowls, stay with the high broadcast frame the bowling UI
+   * is built around.
+   */
+  private applyBatCam(): void {
+    const battingView = this.playerBatting || this.mode === 'watch';
+    if (!battingView || this.batCam === 'tv') {
+      this.deps.cameras.toTV();
+    } else if (this.batCam === 'helmet') {
+      this.deps.cameras.toHelmet();
+    } else {
+      this.deps.cameras.toBehindBatter();
+    }
   }
 
   // ─── Entities ───────────────────────────────────────────────────────────
@@ -477,6 +514,7 @@ export class MatchController {
       this.deps.hud.showBowlPanel(this.bowlPanelHtml(), null);
     } else {
       this.phase = 'delivering';
+      this.applyBatCam();
       // Small realistic pause before the bowler turns in.
       this.delivery.beginRunup();
     }
@@ -663,6 +701,20 @@ export class MatchController {
     if (this.paused) return;
     const inn = this.match.current();
 
+    // Camera cycle (V): stores the preference; switches live only pre-contact
+    // so we never yank the follow cam off a ball in play.
+    if (this.deps.input.consumeCamCycle()) {
+      this.batCam = this.batCam === 'tv' ? 'behindBatter' : this.batCam === 'behindBatter' ? 'helmet' : 'tv';
+      const label = this.batCam === 'tv' ? 'BROADCAST' : this.batCam === 'behindBatter' ? 'BEHIND BATTER' : 'HELMET CAM';
+      this.deps.hud.flash(`CAMERA: ${label}`, '#4bafff', true);
+      this.deps.audio.uiClick();
+      const dp = this.delivery?.phase;
+      const preHit = dp !== 'inplay' && dp !== 'dead';
+      if ((this.phase === 'delivering' && preHit) || this.phase === 'betweenBalls' || this.phase === 'bowlingUI') {
+        this.applyBatCam();
+      }
+    }
+
     // HumanKit: per-frame animation update + ball head-tracking.
     // Track only when the ball is genuinely LIVE (a real delivery in motion);
     // parked/dead balls (mesh parked at origin) must never drag heads around.
@@ -670,6 +722,10 @@ export class MatchController {
     const livePhase = dp === 'runup' || dp === 'action' || dp === 'flight' || dp === 'inplay';
     const live = (this.phase === 'delivering' && livePhase) || this.phase === 'replay';
     const ballPos = live ? this.ballPosition() : null;
+    // For cameras: the ball only exists once it's genuinely in play — during
+    // the run-up it sits parked at the bowler's mark and must not drag frames.
+    const ballMoving = this.phase === 'replay' || (this.phase === 'delivering' && (dp === 'flight' || dp === 'inplay') && !this.ball.state.isDead);
+    this.liveBallPos = ballMoving ? this.ballPosition() : null;
     for (const h of this.humanEnts) {
       h.trackBall(ballPos);
       h.update(dt);
@@ -732,6 +788,12 @@ export class MatchController {
         }
         if (this.playerBatting) this.deps.input.update(dt, 'bat');
         this.delivery.update(dt);
+        // Keeper settles into his crouch as the bowler turns in (between-balls
+        // idle freezes otherwise, and he'd watch the delivery standing bolt upright).
+        const dph = this.delivery.phase;
+        if (dph === 'setup' || dph === 'runup' || dph === 'action') {
+          this.keeper.cricketer.keeperStance(performance.now() / 1000);
+        }
         // Aim wedge while batting.
         if (this.playerBatting && (this.delivery.phase === 'setup' || this.delivery.phase === 'runup' || this.delivery.phase === 'flight')) {
           this.aimWedge.visible = true;
@@ -761,7 +823,7 @@ export class MatchController {
           this.replayReason = null;
           this.replayIdx = 0;
           this.phase = 'betweenBalls';
-          this.deps.cameras.toTV();
+          this.applyBatCam();
           this.syncBallVisual();
         }
         break;
@@ -776,7 +838,7 @@ export class MatchController {
           } else {
             if (overComplete) this.endOver();
             this.phase = 'preBall';
-            this.deps.cameras.toTV();
+            this.applyBatCam();
             this.syncBallVisual();
           }
         }
@@ -884,11 +946,11 @@ export class MatchController {
 
   private updateHint(): void {
     if (this.mode === 'watch') {
-      this.deps.hud.setHint('AI v AI BROADCAST — 1/2/3 playback speed • ENTER skip • ESC pause');
+      this.deps.hud.setHint('AI v AI BROADCAST — 1/2/3 playback speed • V camera • ENTER skip • ESC pause');
       return;
     }
     this.deps.hud.setHint(
-      'BAT: ←/→ aim • SPACE drive • SHIFT+SPACE loft • Z defend • X cut/pull • C sweep • ↑ charge • R/F runs<br/>' +
+      'BAT: ←/→ aim • SPACE drive • SHIFT+SPACE loft • Z defend • X cut/pull • C sweep • ↑ charge • R/F runs • V camera<br/>' +
         'BOWL: 1-7 type • arrows aim • SPACE ×2 • ENTER skip',
     );
   }

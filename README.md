@@ -32,6 +32,10 @@ npm install
 npm run dev     # http://localhost:5173
 ```
 
+The full manual — controls, the physics, strategy, and the roadmap to the
+perfect cricket simulator — lives at **`/manual.html`** (linked from the title
+screen, and copied into production builds from `public/`).
+
 Title → match setup (format, teams, difficulty, pitch, conditions, time of day) →
 toss → play. Or hit **WATCH AI v AI** on the title screen for a self-playing
 broadcast — 1/2/3 set playback speed (live / 2× / 4×), ENTER skips the pause.
@@ -58,6 +62,11 @@ the AI's own contests (watch mode is always pure club-level AI vs AI).
 | C | Sweep |
 | ↑ (hold) | Charge down the track |
 | R / F | Take a run / send back |
+| V | Cycle batting camera: broadcast → behind-batter → helmet cam |
+
+The behind-batter frame sits over the off-side shoulder with the stumps in
+shot — the picture is the batter defending his wicket; the helmet cam rides
+the striker's head and watches the bowler's hand until the ball is live.
 
 Timing is committed at the press: the ball arrives when physics says it arrives.
 Line reading matters — the bat goes where you aim it, and the corridor punishes a
@@ -93,8 +102,9 @@ ENTER skips the between-ball pause. ESC pauses.
 - **AI**: phase-aware bowling plans (new-ball swing, death yorkers), batter brains
   (sector discipline, gap-finding, resource management), reactive captaincy that
   posts sweepers where you're scoring.
-- **Presentation**: broadcast camera director (TV frame, ball-follow, wicket zoom,
-  side-on replays), animated crowd that surges on events, procedural stadium audio,
+- **Presentation**: broadcast camera director (TV frame, behind-batter and helmet
+  batting cams, ball-follow, wicket zoom, side-on replays), animated crowd that
+  surges on events, procedural stadium audio,
   day / twilight / night lighting with glowing floodlights, live big-screen score,
   full scorebug with recent-balls, wagon-ready ball log.
 - **Formats**: T20, ODI, Test (4 innings), eight fictional international squads with

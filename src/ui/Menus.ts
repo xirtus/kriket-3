@@ -72,10 +72,14 @@ export class Menus {
         <button class="play" id="kplay">PLAY</button>
         <button class="play" id="kwatch" style="background:linear-gradient(180deg,#4bafff,#2470c0);box-shadow:0 8px 30px rgba(75,175,255,0.35)">WATCH AI v AI</button>
       </div>
+      <div class="row" style="margin-top:-4px">
+        <button class="play" id="kmanual" style="background:transparent;border:1px solid rgba(255,255,255,0.35);box-shadow:none;font-size:14px;padding:10px 30px;letter-spacing:2px">📖 THE MANUAL</button>
+      </div>
       <div class="section">FULL PHYSICS • SEAM • SWING • SPIN • WEAR • FIELDING • ALL THREE FORMATS</div>
     `);
     el.querySelector('#kplay')!.addEventListener('click', onPlay);
     if (onWatch) el.querySelector('#kwatch')!.addEventListener('click', onWatch);
+    el.querySelector('#kmanual')!.addEventListener('click', () => window.open('/manual.html', '_blank'));
   }
 
   showSetup(onStart: (c: SetupChoices) => void, spectate = false): void {

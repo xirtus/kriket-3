@@ -7,7 +7,7 @@ export type ShotInputKind = 'drive' | 'loft' | 'defend' | 'cut' | 'pull' | 'swee
  *            R run / take another   F send back
  *  Bowling:  1-7 delivery type  ←/→/↑/↓ aim target  SPACE start run-up,
  *            SPACE again at the crease for release quality
- *  General:  ENTER skip pause / continue   ESC pause
+ *  General:  V cycle batting camera   ENTER skip pause / continue   ESC pause
  */
 export class InputManager {
   aimDeg = 0;
@@ -20,6 +20,7 @@ export class InputManager {
   private enterPressed = false;
   private releasePressed = false;
   private bowlType: string | null = null;
+  private camCycle = false;
   aimLength = 5; // metres in front of stumps (bowling target)
   private up = false;
   private down = false;
@@ -70,6 +71,9 @@ export class InputManager {
         break;
       case 'KeyF':
         if (down) this.backPressed = true;
+        break;
+      case 'KeyV':
+        if (down && !e.repeat) this.camCycle = true;
         break;
       case 'Enter':
         if (down) this.enterPressed = true;
@@ -150,5 +154,11 @@ export class InputManager {
     const t = this.bowlType;
     this.bowlType = null;
     return t;
+  }
+
+  consumeCamCycle(): boolean {
+    const v = this.camCycle;
+    this.camCycle = false;
+    return v;
   }
 }

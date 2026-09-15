@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<title>KRIKET — The Manual</title>
+<style>
+  :root {
+    --bg: #05080c;
+    --bg2: #0a1210;
+    --panel: rgba(255,255,255,0.045);
+    --panel2: rgba(255,255,255,0.08);
+    --line: rgba(255,255,255,0.11);
+    --txt: #dfe8e2;
+    --dim: #8fa89a;
+    --green: #36d17c;
+    --green-deep: #1d9e57;
+    --gold: #ffd24b;
+    --blue: #4bafff;
+    --red: #ff5f5f;
+    --orange: #ff9d4b;
+    --maxw: 1180px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; color: var(--txt);
+    font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+    background:
+      radial-gradient(1200px 500px at 50% -100px, rgba(54,209,124,0.13), transparent 60%),
+      radial-gradient(900px 600px at 110% 20%, rgba(75,175,255,0.07), transparent 55%),
+      linear-gradient(180deg, var(--bg), var(--bg2) 40%, var(--bg));
+    line-height: 1.65;
+  }
+  ::selection { background: rgba(54,209,124,0.35); }
+
+  /* ── top bar ─────────────────────────────── */
+  #topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50; height: 54px;
+    display: flex; align-items: center; gap: 14px; padding: 0 18px;
+    background: rgba(5,8,12,0.82); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  #topbar .brand { font-weight: 900; letter-spacing: 4px; font-size: 18px;
+    background: linear-gradient(180deg,#fff,#7dd8a0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #topbar .brand small { font-size: 10px; letter-spacing: 2px; color: var(--dim); -webkit-text-fill-color: var(--dim); font-weight: 600; margin-left: 8px; }
+  #topbar .spacer { flex: 1; }
+  #search {
+    background: rgba(255,255,255,0.07); border: 1px solid var(--line); color: var(--txt);
+    border-radius: 8px; padding: 7px 12px; font-size: 13px; width: 210px; outline: none;
+  }
+  #search:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(54,209,124,0.18); }
+  #topbar a.play-link {
+    background: linear-gradient(180deg, var(--green), var(--green-deep)); color: #04140b;
+    font-weight: 800; font-size: 13px; letter-spacing: 1px; text-decoration: none;
+    padding: 8px 18px; border-radius: 8px;
+  }
+  #topbar a.play-link:hover { filter: brightness(1.12); }
+  #navtoggle { display: none; background: none; border: 1px solid var(--line); color: var(--txt);
+    border-radius: 8px; font-size: 18px; width: 38px; height: 38px; cursor: pointer; }
+
+  /* ── layout ──────────────────────────────── */
+  #layout { display: flex; max-width: var(--maxw); margin: 0 auto; padding-top: 54px; }
+  nav#side {
+    position: sticky; top: 54px; align-self: flex-start; width: 228px; flex: 0 0 228px;
+    height: calc(100vh - 54px); overflow-y: auto; padding: 26px 14px 40px 4px;
+  }
+  nav#side .grp { font-size: 10px; letter-spacing: 2.5px; color: var(--dim); margin: 20px 10px 6px; }
+  nav#side a {
+    display: block; color: var(--txt); text-decoration: none; font-size: 13.5px;
+    padding: 7px 12px; border-radius: 8px; border-left: 2px solid transparent; opacity: 0.82;
+  }
+  nav#side a:hover { background: var(--panel2); opacity: 1; }
+  nav#side a.active { border-left-color: var(--green); background: rgba(54,209,124,0.1); opacity: 1; font-weight: 600; }
+  main { flex: 1; min-width: 0; padding: 10px 34px 120px; }
+  section { margin-bottom: 84px; scroll-margin-top: 72px; }
+  section.hidden-by-search { display: none; }
+
+  /* ── type ────────────────────────────────── */
+  h1.hero {
+    font-size: clamp(56px, 9vw, 108px); margin: 60px 0 0; letter-spacing: 12px; font-weight: 900; line-height: 1;
+    background: linear-gradient(180deg,#fff 30%,#7dd8a0); -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 18px 60px rgba(60,220,140,0.18);
+  }
+  .tagline { color: var(--dim); letter-spacing: 4px; font-size: 13px; margin: 14px 0 0; font-weight: 600; }
+  h2 { font-size: 30px; letter-spacing: 3px; font-weight: 900; margin: 0 0 6px; color: #fff; }
+  h2 .tick { color: var(--green); }
+  h3 { font-size: 17px; letter-spacing: 1.5px; color: var(--gold); margin: 34px 0 8px; font-weight: 800; }
+  .lede { color: var(--dim); font-size: 15.5px; max-width: 70ch; margin: 8px 0 22px; }
+  p { margin: 10px 0; max-width: 78ch; }
+  strong { color: #fff; }
+  a { color: var(--blue); }
+  code { background: rgba(255,255,255,0.08); border: 1px solid var(--line); border-radius: 5px; padding: 1px 6px; font-size: 12.5px; color: #bfe9d2; }
+  pre {
+    background: #060b09; border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px;
+    overflow-x: auto; font-size: 13.5px; line-height: 1.6; color: #bfe9d2;
+  }
+
+  /* ── components ──────────────────────────── */
+  .grid { display: grid; gap: 14px; }
+  .grid.c2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .grid.c3 { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px;
+    transition: transform .18s ease, border-color .18s ease, background .18s ease;
+  }
+  .card:hover { transform: translateY(-2px); border-color: rgba(54,209,124,0.4); background: var(--panel2); }
+  .card h4 { margin: 0 0 6px; font-size: 15px; letter-spacing: 1px; color: #fff; }
+  .card .sub { font-size: 12.5px; color: var(--dim); }
+  .card p { font-size: 13.5px; margin: 8px 0 0; }
+  .chip { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1px; border-radius: 20px;
+    padding: 3px 10px; margin: 2px 4px 2px 0; border: 1px solid var(--line); background: rgba(255,255,255,0.06); color: var(--dim); }
+  .chip.g { color: var(--green); border-color: rgba(54,209,124,0.4); }
+  .chip.y { color: var(--gold); border-color: rgba(255,210,75,0.4); }
+  .chip.b { color: var(--blue); border-color: rgba(75,175,255,0.4); }
+  .chip.r { color: var(--red); border-color: rgba(255,95,95,0.4); }
+
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13.5px; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  th { text-align: left; font-size: 11px; letter-spacing: 1.5px; color: var(--dim); padding: 10px 14px;
+    background: rgba(255,255,255,0.05); border-bottom: 1px solid var(--line); }
+  td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.03); }
+
+  kbd {
+    display: inline-block; min-width: 26px; text-align: center; padding: 3px 8px; margin: 1px 2px;
+    font-family: inherit; font-size: 12px; font-weight: 700; color: #eafff3;
+    background: linear-gradient(180deg, #2a3540, #141c24);
+    border: 1px solid rgba(255,255,255,0.22); border-bottom-width: 3px; border-radius: 7px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.5);
+  }
+  kbd.gold { color: var(--gold); border-color: rgba(255,210,75,0.5); }
+
+  .callout { border-left: 3px solid var(--green); background: rgba(54,209,124,0.08);
+    border-radius: 0 12px 12px 0; padding: 14px 18px; margin: 18px 0; font-size: 14px; max-width: 78ch; }
+  .callout.gold { border-left-color: var(--gold); background: rgba(255,210,75,0.07); }
+  .callout.blue { border-left-color: var(--blue); background: rgba(75,175,255,0.07); }
+  .callout b, .callout strong { color: #fff; }
+
+  .statrow { display: flex; flex-wrap: wrap; gap: 12px; margin: 22px 0; }
+  .stat { flex: 1 1 130px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; text-align: center; }
+  .stat .n { font-size: 24px; font-weight: 900; color: var(--green); }
+  .stat .l { font-size: 11px; letter-spacing: 1px; color: var(--dim); margin-top: 2px; }
+
+  /* hero pitch strip behind hero text */
+  #herostrip { position: relative; height: 14px; border-radius: 20px; margin: 34px 0 8px; max-width: 640px;
+    background: linear-gradient(90deg, #8a6f3f, #d3bd85 20%, #c4ab72 80%, #8a6f3f);
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.35), 0 4px 18px rgba(0,0,0,0.4); }
+  #herostrip::before, #herostrip::after { content: ''; position: absolute; top: -3px; bottom: -3px; width: 3px; background: #f5f2e8; border-radius: 2px; }
+  #herostrip::before { left: 8%; } #herostrip::after { right: 8%; }
+  #heroball { position: absolute; top: 50%; left: 8%; width: 13px; height: 13px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ff7a6a, #9e1414 70%); transform: translate(-50%,-50%);
+    box-shadow: 0 0 10px rgba(255,80,60,0.8); }
+
+  /* delivery visualizer */
+  #vizwrap { display: grid; grid-template-columns: 300px 1fr; gap: 22px; align-items: start; }
+  #vizcanvas { width: 300px; height: 560px; border-radius: 14px; border: 1px solid var(--line);
+    background: linear-gradient(180deg, #173a22, #1e5c33 50%, #173a22); display: block; }
+  .vizbtns { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .vizbtns button {
+    background: var(--panel); color: var(--txt); border: 1px solid var(--line); border-radius: 9px;
+    padding: 8px 13px; font-size: 12.5px; font-weight: 700; letter-spacing: 0.5px; cursor: pointer; transition: all .14s;
+  }
+  .vizbtns button:hover { background: var(--panel2); transform: translateY(-1px); }
+  .vizbtns button.on { background: rgba(54,209,124,0.16); border-color: var(--green); color: #d9ffe9; }
+  #vizstats { font-size: 13px; color: var(--dim); min-height: 66px; }
+  #vizstats b { color: var(--gold); }
+
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; margin: 10px 0; }
+  details summary { cursor: pointer; font-weight: 700; letter-spacing: 0.5px; color: #fff; font-size: 14px; }
+  details summary:hover { color: var(--green); }
+  details[open] { border-color: rgba(54,209,124,0.35); }
+  details p, details ul { font-size: 13.5px; }
+
+  /* roadmap */
+  .phase { border: 1px solid var(--line); border-radius: 16px; padding: 4px 22px 18px; margin: 16px 0; background: var(--panel); position: relative; overflow: hidden; }
+  .phase::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--green); }
+  .phase.p2::before { background: var(--blue); } .phase.p3::before { background: var(--gold); } .phase.p4::before { background: var(--orange); }
+  .phase h3 { margin-top: 18px; }
+  .todo { list-style: none; padding: 0; margin: 10px 0; }
+  .todo li { padding: 7px 0 7px 34px; position: relative; font-size: 13.5px; border-bottom: 1px dashed rgba(255,255,255,0.07); }
+  .todo li:last-child { border-bottom: none; }
+  .todo li::before { content: ''; position: absolute; left: 4px; top: 11px; width: 14px; height: 14px; border-radius: 4px;
+    border: 2px solid var(--dim); }
+  .todo li.done { color: var(--dim); }
+  .todo li.done::before { border-color: var(--green); background: rgba(54,209,124,0.25); }
+  .todo li.done::after { content: '✓'; position: absolute; left: 6px; top: 6px; color: var(--green); font-weight: 900; font-size: 13px; }
+  .todo li b { color: #fff; }
+  .todo li .tag { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--blue); margin-left: 8px; }
+
+  footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 34px 0 10px; color: var(--dim); font-size: 12.5px; text-align: center; }
+
+  /* reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 900px) {
+    #layout { flex-direction: column; }
+    nav#side { position: fixed; z-index: 40; left: 0; top: 54px; bottom: 0; width: 250px; background: rgba(5,8,12,0.97);
+      transform: translateX(-105%); transition: transform .25s ease; padding-left: 14px; height: auto; }
+    nav#side.open { transform: none; }
+    #navtoggle { display: block; }
+    #vizwrap { grid-template-columns: 1fr; }
+    #search { width: 120px; }
+    main { padding: 10px 18px 120px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <button id="navtoggle" aria-label="menu">☰</button>
+  <div class="brand">KRIKET<small>THE MANUAL</small></div>
+  <div class="spacer"></div>
+  <input id="search" type="search" placeholder="Filter the manual…" />
+  <a class="play-link" href="/">▶ PLAY</a>
+</div>
+
+<div id="layout">
+<nav id="side">
+  <div class="grp">THE GAME</div>
+  <a href="#overview">Overview</a>
+  <a href="#quickstart">Quick start</a>
+  <a href="#setup">Match setup</a>
+  <a href="#controls">Controls</a>
+  <a href="#cameras">Cameras</a>
+  <div class="grp">UNDER THE HOOD</div>
+  <a href="#simulation">The simulation</a>
+  <a href="#deliveries">Delivery lab</a>
+  <a href="#dismissals">Dismissals &amp; extras</a>
+  <a href="#humans">The humans</a>
+  <a href="#ai">The AI</a>
+  <a href="#presentation">Presentation</a>
+  <div class="grp">MASTERY</div>
+  <a href="#strategy">Strategy guide</a>
+  <a href="#spectate">Spectate &amp; QA</a>
+  <div class="grp">THE FUTURE</div>
+  <a href="#roadmap">Roadmap to perfection</a>
+</nav>
+
+<main>
+
+<!-- ═══════════ OVERVIEW ═══════════ -->
+<section id="overview" data-search="overview physics simulation webgpu three.js humankit">
+  <h1 class="hero">KRIKET</h1>
+  <div class="tagline">A NEXT-GENERATION CRICKET SIMULATION — THE MANUAL</div>
+  <div id="herostrip"><div id="heroball"></div></div>
+  <p class="lede" style="margin-top:26px">
+    A full cricket match — bat, bowl, field, run — built on <strong>real physics</strong> and running
+    entirely in your browser on Three.js (WebGPU, with a WebGL2 fallback). Every delivery is a live
+    physical event: seam presentation, conventional and reverse <strong>swing</strong>, <strong>spin</strong>,
+    pitch interaction, the bat–ball collision, fielding, throwing and running between the wickets.
+    Nothing is scripted; the scoreboard emerges from the simulation.
+  </p>
+  <div class="statrow">
+    <div class="stat"><div class="n">0.156</div><div class="l">KG — REGULATION BALL</div></div>
+    <div class="stat"><div class="n">20.12</div><div class="l">M — 22 YARDS</div></div>
+    <div class="stat"><div class="n">74</div><div class="l">ANIMATION CLIPS</div></div>
+    <div class="stat"><div class="n">8</div><div class="l">INTERNATIONAL SQUADS</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">FORMATS</div></div>
+    <div class="stat"><div class="n">120 Hz</div><div class="l">FIXED-STEP PHYSICS</div></div>
+  </div>
+  <div class="callout">
+    <b>The philosophy:</b> the ball doesn't know the score. Seam angle, wear, surface moisture and a
+    bowler's release decide what happens — the game just keeps score honestly. Learn the physics and
+    you learn the game.
+  </div>
+</section>
+
+<!-- ═══════════ QUICK START ═══════════ -->
+<section id="quickstart" class="reveal" data-search="quick start install npm dev run browser play watch">
+  <h2><span class="tick">01 /</span> QUICK START</h2>
+  <p class="lede">From a cold checkout to facing your first ball in under a minute.</p>
+  <pre>npm install
+npm run dev     <span style="opacity:0.5"># → http://localhost:5173</span></pre>
+  <div class="grid c3">
+    <div class="card"><h4>① Title screen</h4><p><strong>PLAY</strong> to set up a match, or <strong>WATCH AI v AI</strong> for a self-playing broadcast.</p></div>
+    <div class="card"><h4>② Match setup</h4><p>Format, teams, difficulty, pitch, weather and time of day. Then the toss — you bat first.</p></div>
+    <div class="card"><h4>③ First ball</h4><p>You open the batting in the behind-the-batter frame. <kbd>←</kbd><kbd>→</kbd> aim, <kbd>SPACE</kbd> drives. Good luck.</p></div>
+  </div>
+  <div class="callout gold">No build steps, no accounts, no servers — the whole match is simulated and rendered client-side, deterministically from a seed.</div>
+</section>
+
+<!-- ═══════════ MATCH SETUP ═══════════ -->
+<section id="setup" class="reveal" data-search="match setup format teams pitch weather conditions time difficulty venue boundary t20 odi test">
+  <h2><span class="tick">02 /</span> MATCH SETUP</h2>
+  <p class="lede">Every choice on the setup screen feeds the physics. A green seamer under humid skies is a different sport from a flat deck at noon.</p>
+
+  <h3>FORMATS</h3>
+  <table>
+    <tr><th>Format</th><th>Length</th><th>Character</th></tr>
+    <tr><td><b>T20</b></td><td>20 overs a side</td><td>Attack from ball one; free hits after no-balls; fields attack the rope.</td></tr>
+    <tr><td><b>ODI</b></td><td>50 overs a side</td><td>Build an innings; the ball wears and starts to reverse late.</td></tr>
+    <tr><td><b>TEST</b></td><td>Four innings, no over limit</td><td>Red ball in whites (long sleeves), patient fields, the full examination.</td></tr>
+  </table>
+
+  <h3>THE EIGHT SQUADS</h3>
+  <p>Fictional-but-flavoured international teams, generated deterministically — both sides always field the same named XIs with role-based ratings: two openers, three middle-order, a keeper, all-rounders and a four-pronged attack.</p>
+  <div class="grid c3">
+    <div class="card"><h4><span style="color:#5c8fe0">■</span> Bharat <span class="sub">BHA</span></h4></div>
+    <div class="card"><h4><span style="color:#d0485e">■</span> Albion <span class="sub">ALB</span></h4></div>
+    <div class="card"><h4><span style="color:#e8b422">■</span> Southern Stars <span class="sub">STH</span></h4></div>
+    <div class="card"><h4><span style="color:#9aa4ac">■</span> Aotearoa <span class="sub">AOT</span></h4></div>
+    <div class="card"><h4><span style="color:#a04a6e">■</span> Calypso Kings <span class="sub">CAL</span></h4></div>
+    <div class="card"><h4><span style="color:#2f8a58">■</span> Savanna <span class="sub">SAV</span></h4></div>
+    <div class="card"><h4><span style="color:#3a62a0">■</span> Serendib Lions <span class="sub">SER</span></h4></div>
+    <div class="card"><h4><span style="color:#2b9e6f">■</span> Indus Shaheens <span class="sub">IND</span></h4></div>
+  </div>
+
+  <h3>PITCHES — FOUR SURFACES, FOUR GAMES</h3>
+  <table>
+    <tr><th>Surface</th><th>Bounce</th><th>Grip</th><th>Seam</th><th>Expect</th></tr>
+    <tr><td><b>Flat Batting Deck</b></td><td>True, hard</td><td>Low</td><td>Low</td><td>Runs. Trust the bounce, hit through the line.</td></tr>
+    <tr><td><b>Green Seamer</b></td><td>Lively</td><td>Medium</td><td><b>Fierce</b></td><td>Seam deviation off a good length; soft hands, late shots.</td></tr>
+    <tr><td><b>Dry Turner</b></td><td>Lower, variable</td><td><b>High</b></td><td>Low</td><td>Cracks and footmarks; spin grips and rips, odd shooter.</td></tr>
+    <tr><td><b>Damp &amp; Overcast</b></td><td>Tennis-ball</td><td>Medium</td><td>High</td><td>Slow off the deck, nibble all day — bowl first.</td></tr>
+  </table>
+  <p class="sub" style="color:var(--dim);font-size:12.5px">Under the hood each surface sets restitution, Coulomb friction, seam catchiness, hardness, variable-bounce and rolling drag — the visible wear (footmarks, cracks) is baked into the strip texture.</p>
+
+  <h3>CONDITIONS &amp; TIME</h3>
+  <div class="grid c3">
+    <div class="card"><h4>Clear</h4><p>Baseline swing (×0.85). The honest day.</p></div>
+    <div class="card"><h4>Overcast</h4><p>Swing amplified ×1.25. The new ball hoops.</p></div>
+    <div class="card"><h4>Humid</h4><p>Heavy swing ×1.5. Defend your stumps early.</p></div>
+    <div class="card"><h4>Day</h4><p>Full sun, hard shadows. Red ball in Tests.</p></div>
+    <div class="card"><h4>Twilight</h4><p>The tricky in-between light.</p></div>
+    <div class="card"><h4>Night</h4><p>Floodlights on, white ball, coloured kits.</p></div>
+  </div>
+  <p>The venue is <strong>The Oval Ring</strong>; the rope is set randomly between 64–70 m at the toss.</p>
+
+  <h3>DIFFICULTY</h3>
+  <table>
+    <tr><th></th><th>Bat windows</th><th>AI bowler error</th><th>AI fielding</th><th>AI bat vs you</th><th>Your release error</th></tr>
+    <tr><td><b>Rookie</b></td><td>+35%</td><td>+30% stray</td><td>slower, drops more</td><td>−8 rating</td><td>−25%</td></tr>
+    <tr><td><b>Club</b></td><td colspan="5" style="text-align:center;color:var(--dim)">The intended tuning — everything ×1.0</td></tr>
+    <tr><td><b>Pro</b></td><td>−15%</td><td>−10% tighter</td><td>sharper, holds on</td><td>+5 rating</td><td>+20%</td></tr>
+  </table>
+  <div class="callout blue">Difficulty is <b>asymmetric by design</b>: it scales the AI's execution against <i>you</i> and your timing windows. AI-vs-AI contests (watch mode) always play pure club-level cricket.</div>
+</section>
+
+<!-- ═══════════ CONTROLS ═══════════ -->
+<section id="controls" class="reveal" data-search="controls keys input batting bowling drive loft defend cut pull sweep charge run camera aim wedge release">
+  <h2><span class="tick">03 /</span> CONTROLS</h2>
+  <p class="lede">One key commits the shot; physics decides the rest. Timing is locked in at the press — the ball arrives when physics says it arrives.</p>
+
+  <h3>BATTING</h3>
+  <table>
+    <tr><th>Input</th><th>Action</th><th>Notes</th></tr>
+    <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Aim the shot</td><td>The yellow wedge at your feet shows the line; ±85° from straight.</td></tr>
+    <tr><td><kbd>SPACE</kbd></td><td>Drive</td><td>The bread-and-butter scoring shot.</td></tr>
+    <tr><td>SHIFT + <kbd>SPACE</kbd></td><td>Loft</td><td>Over the infield; the mis-hit carries too.</td></tr>
+    <tr><td><kbd>Z</kbd></td><td>Defend</td><td>Soft hands, dead bat. Protects the pins on the corridor ball.</td></tr>
+    <tr><td><kbd>X</kbd></td><td>Cut / Pull</td><td>Follows the aim: behind square on the off it's a cut, on the leg a pull.</td></tr>
+    <tr><td><kbd>C</kbd></td><td>Sweep</td><td>The spinner's nightmare — and your stumps' if you miss.</td></tr>
+    <tr><td><kbd>↑</kbd> (hold)</td><td>Charge down the track</td><td>Meet the ball on the full; get beaten and the keeper whips the bails.</td></tr>
+    <tr><td><kbd>R</kbd> / <kbd>F</kbd></td><td>Run / send back</td><td>Judge the fielder's return time, not just the gap.</td></tr>
+    <tr><td><kbd>V</kbd></td><td>Cycle batting camera</td><td>Broadcast → behind-batter → helmet cam.</td></tr>
+  </table>
+  <div class="callout"><b>Line reading matters.</b> The bat goes where you aim it and the corridor punishes a wrong read: follow a ball that's leaving you and the edge carries. Watch the bowler's hand, not the pitch.</div>
+
+  <h3>BOWLING</h3>
+  <table>
+    <tr><th>Input</th><th>Action</th><th>Notes</th></tr>
+    <tr><td><kbd>1</kbd>–<kbd>7</kbd></td><td>Delivery type</td><td>Seam-up · outswing · inswing · off-spin · leg-spin · googly · slower ball</td></tr>
+    <tr><td>Arrow keys</td><td>Move the target marker</td><td><kbd>←</kbd><kbd>→</kbd> line (metres off middle) · <kbd>↑</kbd><kbd>↓</kbd> length (from yorker to short)</td></tr>
+    <tr><td><kbd>SPACE</kbd> ×2</td><td>Run-up, then release</td><td>Hit the second press as the meter peaks — release timing sets execution error.</td></tr>
+  </table>
+  <div class="callout gold">Type availability respects the bowler: a seamer can't bowl a googly (it comes out as off-spin), and spinners won't suddenly find 130 clicks. Choose spells accordingly.</div>
+
+  <h3>GENERAL</h3>
+  <table>
+    <tr><td><kbd>V</kbd></td><td>Cycle camera (batting views while batting / spectating)</td></tr>
+    <tr><td><kbd>ENTER</kbd></td><td>Skip the between-ball pause</td></tr>
+    <tr><td>ESC</td><td>Pause menu</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════ CAMERAS ═══════════ -->
+<section id="cameras" class="reveal" data-search="camera broadcast tv behind batter helmet first person follow wicket replay director view angle">
+  <h2><span class="tick">04 /</span> CAMERAS</h2>
+  <p class="lede">A broadcast-style director cuts between frames. Batting has three personalities — pick yours with <kbd>V</kbd>.</p>
+  <div class="grid c3">
+    <div class="card">
+      <h4>📺 Broadcast (TV)</h4>
+      <div class="sub">the classic</div>
+      <p>High behind the bowler, tight 33° lens, drifting subtly with the play. The frame you grew up on — and the frame the bowling UI is built around.</p>
+    </div>
+    <div class="card">
+      <h4>🏏 Behind the batter</h4>
+      <div class="sub">default when you bat</div>
+      <p>Over the off-side shoulder with <strong>the stumps in shot</strong> — the picture is you defending your wicket. Keeper crouched behind, bowler attacking down the length of the pitch. Pans with the ball, never loses the pins.</p>
+    </div>
+    <div class="card">
+      <h4>🪖 Helmet cam</h4>
+      <div class="sub">first person</div>
+      <p>Rides the striker's actual head — sway, crouch and all. Watches the bowler's hand until the ball is live, then tracks it in. As close to facing 140 as a browser gets.</p>
+    </div>
+    <div class="card">
+      <h4>🎯 Ball-follow</h4>
+      <div class="sub">on contact</div>
+      <p>The instant bat meets ball the director cuts to a panning follow that widens as the shot travels — like a real TV operator riding the boundary.</p>
+    </div>
+    <div class="card">
+      <h4>💥 Wicket zoom</h4>
+      <div class="sub">on a dismissal</div>
+      <p>Hard cut to the stumps as the bails fly (they're simulated too, disturbed by the ball's actual velocity).</p>
+    </div>
+    <div class="card">
+      <h4>🔁 Side-on replay</h4>
+      <div class="sub">wickets &amp; boundaries</div>
+      <p>The delivery re-rolled from the side-on analyst position — watch the swing you just misread in full.</p>
+    </div>
+  </div>
+  <div class="callout blue"><b>Camera rule of honour:</b> no camera ever chases a parked ball. Frames only track the ball while it's genuinely live — in flight or in play.</div>
+</section>
+
+<!-- ═══════════ SIMULATION ═══════════ -->
+<section id="simulation" class="reveal" data-search="simulation physics aerodynamics drag magnus swing reverse seam spin pitch restitution friction bounce wear contact bat collision fielding running integrator">
+  <h2><span class="tick">05 /</span> THE SIMULATION</h2>
+  <p class="lede">A fixed 120 Hz integrator steps the ball through air, pitch and contact. Regulation everything: 156 g ball, 22 yards, 71 cm stumps, a 96.5 cm bat with the sweet spot 45 cm from the handle.</p>
+
+  <h3>AERODYNAMICS — WHAT THE AIR DOES</h3>
+  <div class="grid c2">
+    <div class="card"><h4>Quadratic drag</h4><p>Air resistance grows with speed² — the 140 km/h thunderbolt arrives slower than it left, and the lobbed catch keeps hanging.</p></div>
+    <div class="card"><h4>Magnus lift</h4><p>ω × v on a spinning ball: top-spin dips, back-spin floats, side-spin drifts. Why the leg-spinner's fizzed leg-break drops on you.</p></div>
+    <div class="card"><h4>Conventional swing</h4><p>The angled seam trips the airflow; effectiveness peaks near a 45° presentation. Strongest with the new ball, fading as the shine goes.</p></div>
+    <div class="card"><h4>Reverse swing</h4><p>A rough, worn ball at genuine pace swings the <em>other way</em> — late, and into the toes. The death-over weapon the scoreboard never sees coming.</p></div>
+    <div class="card"><h4>Weather</h4><p>Overcast and humid air amplifies all of it (×1.25 / ×1.5). Captains: bowl first under clouds.</p></div>
+    <div class="card"><h4>Ball wear</h4><p>Overs and runs scuff the ball (you can see it darken and rough up). Wear feeds swing reversal, grip and bounce.</p></div>
+  </div>
+
+  <h3>THE PITCH — WHAT THE DECK DOES</h3>
+  <p>At the bounce, the surface takes its cut: vertical energy kept (restitution), Coulomb friction gripping the ball, seam catching and deviating, spin biting, and the odd shooter or riser from variable bounce — livelier on worn, dry surfaces. Footmarks and cracks are baked into the strip because they're part of the story.</p>
+
+  <h3>CONTACT — BAT MEETS BALL</h3>
+  <p>Timing commits at your press; the bat then intercepts the ball along your line read, and a real collision resolves the result: the middle screams, the edge flies (fine or thick, genuine catches for the cordon), the mistimed chip floats where the fielder just was. A <strong>bat–pad gate</strong> decides whether a beaten ball threads through to the stumps or finds the pad — which is how both bowleds and honest LBW shouts emerge.</p>
+
+  <h3>FIELDING &amp; RUNNING</h3>
+  <div class="grid c2">
+    <div class="card"><h4>Fielding</h4><p>Reaction times, trajectory prediction, cut-off angles, dive stops, fumbles, difficulty-scaled catches and drops, flat throws — and overthrows when the shy misses everything.</p></div>
+    <div class="card"><h4>Running</h4><p>The sim weighs the fielder's return time against your crossing time. A dive buys you 1.8 m. Direct hits are adjudicated on the stumps' actual geometry.</p></div>
+  </div>
+  <details>
+    <summary>The honest-randomness contract</summary>
+    <p>Everything stochastic — seam deviation, bounce variance, execution error — rolls from a seeded RNG (<code>mulberry32</code>) at match start. Same seed, same match. QA replays whole games headlessly; there are no dice under the table.</p>
+  </details>
+</section>
+
+<!-- ═══════════ DELIVERY LAB ═══════════ -->
+<section id="deliveries" class="reveal" data-search="delivery lab visualizer seam outswing inswing offspin legspin googly slower ball trajectory top down">
+  <h2><span class="tick">06 /</span> THE DELIVERY LAB</h2>
+  <p class="lede">Top-down, from behind the bowler: the seven deliveries in your arsenal (<kbd>1</kbd>–<kbd>7</kbd>). Watch what the air and the deck each contribute — then go recognise them from the helmet cam.</p>
+  <div id="vizwrap">
+    <canvas id="vizcanvas" width="600" height="1120"></canvas>
+    <div>
+      <div class="vizbtns" id="vizbtns"></div>
+      <div id="vizstats"></div>
+      <div class="callout" style="margin-top:18px"><b>Reading the picture:</b> the pale trace is the ball's path <em>through the air</em>; after the bounce marker the deck takes over. Swing curves in flight; spin deviates off the surface; the slower ball simply arrives… later. The batter stands at the top, off side to the left.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ DISMISSALS ═══════════ -->
+<section id="dismissals" class="reveal" data-search="dismissals bowled caught lbw run out stumped hit wicket extras wides no ball byes leg byes free hit rules laws">
+  <h2><span class="tick">07 /</span> DISMISSALS &amp; EXTRAS</h2>
+  <p class="lede">The Laws, as enforced by geometry and physics.</p>
+  <table>
+    <tr><th>Dismissal</th><th>How the sim decides it</th></tr>
+    <tr><td><b>Bowled</b></td><td>Swept collision against the stumps each physics step — no tunneling through the wicket, and the bat–pad gate can let a beaten ball thread through.</td></tr>
+    <tr><td><b>Caught</b></td><td>Edges and mistimed shots carry real trajectories; fielders run interception paths with reaction delays and difficulty-scaled hands.</td></tr>
+    <tr><td><b>LBW</b></td><td>Pitched in line, impact in line, and the projected path would have gone on to hit — judged against the actual stump line.</td></tr>
+    <tr><td><b>Run out</b></td><td>Return time vs crossing time, the throw's flight included. Dives buy 1.8 m; direct hits are checked against the stumps themselves.</td></tr>
+    <tr><td><b>Stumped</b></td><td>Charge (<kbd>↑</kbd>) and miss: the keeper takes it and the bails come off with you stranded.</td></tr>
+    <tr><td><b>Hit wicket</b></td><td>In the Laws and in the engine — mind your back foot on the full-blooded pull.</td></tr>
+  </table>
+  <h3>EXTRAS</h3>
+  <p>
+    <span class="chip r">WIDE</span> beyond the batter's reachable guideline, umpire's arms and all.
+    <span class="chip r">NO-BALL</span> overstepping — and in T20/ODI the next one is a <span class="chip y">FREE HIT</span>.
+    <span class="chip b">BYES</span> and <span class="chip b">LEG-BYES</span> when the keeper or pad can't save them — pad first, and the umpire signals it.
+  </p>
+</section>
+
+<!-- ═══════════ HUMANS ═══════════ -->
+<section id="humans" class="reveal" data-search="humans humankit xirtus characters animation rig skeleton kit names numbers helmet pads faces eyes tracking">
+  <h2><span class="tick">08 /</span> THE HUMANS</h2>
+  <p class="lede">Every player on the field is a <strong>Xirtus HumanKit</strong> human — no capsules, no billboards.</p>
+  <div class="grid c2">
+    <div class="card"><h4>Parametric &amp; seeded</h4><p>Each cricketer is generated from their player id on the canonical <code>XIRTUS_HUMANOID_V1</code> skeleton: height, build, skin tone, face with real eyes, hair. Same id, same person, every match.</p></div>
+    <div class="card"><h4>Kitted out</h4><p>Team kits printed with actual surnames and numbers; pads, gloves, helmets and caps as socket-mounted equipment. Whites and long sleeves for Tests, colours under lights.</p></div>
+    <div class="card"><h4>74-clip animation vault</h4><p>Locomotion, sport and cricket-specific clips: the side-on stance with two-handed grip, six shot types, the bowling action, keeping crouch, appeals, celebrations, all five umpire signals.</p></div>
+    <div class="card"><h4>Heads in the game</h4><p>Ball-tracking IK keeps heads and eyes on the play — fielders watch the ball, the batter watches your hand. Batters render at HERO tier; the helmet cam borrows the striker's skull.</p></div>
+  </div>
+  <pre style="font-size:12.5px">Mixamo / MetaHuman / MakeHuman / BVH mocap ──► XIRTUS_HUMANOID_V1 ──► HumanKit ──► this game</pre>
+</section>
+
+<!-- ═══════════ AI ═══════════ -->
+<section id="ai" class="reveal" data-search="ai bowler brain batter brain captaincy fields plans yorkers swing discipline gaps sweepers">
+  <h2><span class="tick">09 /</span> THE AI</h2>
+  <p class="lede">Three brains share the field against you.</p>
+  <div class="grid c3">
+    <div class="card">
+      <h4>🎯 The Bowler Brain</h4>
+      <p>Phase-aware plans: attacks with the new ball while it swings, hits the corridor on a seamer, darts in yorkers at the death. Execution error scales with the bowler's rating — and your difficulty.</p>
+    </div>
+    <div class="card">
+      <h4>🧠 The Batter Brain</h4>
+      <p>Sector discipline (won't chase the fifth-stump line forever), gap-finding against the set field, and resource management: it knows the required rate, balls left and wickets in hand.</p>
+    </div>
+    <div class="card">
+      <h4>🧢 The Captain</h4>
+      <p>Reactive fields. Score freely in one sector and a sweeper appears there; new batters get catchers; set batters get the ring pushed back.</p>
+    </div>
+  </div>
+  <div class="callout">In watch mode the three brains play each other at pure club level — a genuinely self-playing broadcast with live, 2× and 4× playback.</div>
+</section>
+
+<!-- ═══════════ PRESENTATION ═══════════ -->
+<section id="presentation" class="reveal" data-search="presentation crowd audio stadium lighting floodlights big screen scorebug replays trail dust bails commentary">
+  <h2><span class="tick">10 /</span> PRESENTATION</h2>
+  <div class="grid c2">
+    <div class="card"><h4>The crowd</h4><p>A living mosaic that surges on boundaries and wickets, murmurs through the quiet overs — excitement decays naturally, just like a real ground.</p></div>
+    <div class="card"><h4>Stadium audio</h4><p>Procedural: bat on ball by contact quality, the pad thud, appeals rising, the roar for a wicket, the crack-and-hush of a six.</p></div>
+    <div class="card"><h4>Light</h4><p>Day, twilight and full night under glowing floodlights; tone-mapped ACES; the white ball for coloured clothing, red for Test whites.</p></div>
+    <div class="card"><h4>The broadcast package</h4><p>Scorebug with required-rate math, recent-balls ticker, ball-tracer trail, pitch dust on the bounce, flying bails with real velocities, and the big screen keeping score at The Oval Ring.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════ STRATEGY ═══════════ -->
+<section id="strategy" class="reveal" data-search="strategy guide tips how to bat bowl win timing length line sweep charge fields difficulty">
+  <h2><span class="tick">11 /</span> THE STRATEGY GUIDE</h2>
+  <p class="lede">Hard-won wisdom from the QA nets.</p>
+  <h3>BATTING</h3>
+  <div class="grid c2">
+    <div class="card"><h4>Watch the hand, not the pitch</h4><p>Release tells you length. The helmet cam exists for exactly this — commit early, once.</p></div>
+    <div class="card"><h4>Respect the corridor</h4><p>The fourth-stump line is a question with one right answer: leave or defend (<kbd>Z</kbd>). Aiming a drive at it is how edges carry.</p></div>
+    <div class="card"><h4>Use the whole wheel</h4><p>Aim with the field: the captain posts sweepers where you're scoring. Milk the gap he's left you.</p></div>
+    <div class="card"><h4>Charge with intent</h4><p>Hold <kbd>↑</kbd> only against the spinners you read — get beaten and the keeper does the rest. Stumped is the loneliest walk.</p></div>
+    <div class="card"><h4>Sweep the turner</h4><p>On a Dry Turner, meet spin on the full or sweep it. Hanging back is how the shooter bowls you.</p></div>
+    <div class="card"><h4>Run on the arm</h4><p>The run sim is honest: a diving stop still delays the return. Take the second to the deep fielder's wrong side.</p></div>
+  </div>
+  <h3>BOWLING</h3>
+  <div class="grid c2">
+    <div class="card"><h4>Hit release at the peak</h4><p>The second <kbd>SPACE</kbd> sets execution error. Early or late and the plan leaks line and length.</p></div>
+    <div class="card"><h4>New ball, full and straight</h4><p>Swing is strongest early — especially overcast or humid. Make them play at everything for two overs.</p></div>
+    <div class="card"><h4>Old ball, pace on, straight</h4><p>Wear brings reverse at genuine speed: aim at the toes, not the corridor.</p></div>
+    <div class="card"><h4>The slower ball is a length</h4><p>Same action, later arrival. Bowl it full-ish at a set batter who swings early — the mistimed chip finds the fielder.</p></div>
+    <div class="card"><h4>Spin: flight is the bluff</h4><p>Leg-spin drifts and dips; the googly looks identical and turns in. Alternate them at the same line and let Magnus do the talking.</p></div>
+    <div class="card"><h4>Free hits: yorker or bust</h4><p>After your no-ball in a white-ball game, the stumps are the only safe scoring zone — for you.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════ SPECTATE & QA ═══════════ -->
+<section id="spectate" class="reveal" data-search="spectate watch ai broadcast playback speed qa harness playwright headless sim physics lab deterministic seed">
+  <h2><span class="tick">12 /</span> SPECTATE &amp; THE QA HARNESS</h2>
+  <h3>WATCH AI v AI</h3>
+  <p>The self-playing broadcast: <kbd>1</kbd> live · <kbd>2</kbd> 2× · <kbd>3</kbd> 4× playback, <kbd>V</kbd> cycles cameras, <kbd>ENTER</kbd> skips pauses. It's the soak test, the balance lab and the ambient-cricket screensaver in one.</p>
+  <h3>THE HARNESS THAT BUILT IT</h3>
+  <div class="grid c2">
+    <div class="card"><h4>Headless Playwright loop</h4><p><code>qa/shoot.mjs</code> screenshots poses and cameras; <code>qa/sim*.mjs</code> plays entire AI-vs-AI matches and dumps scoring/dismissal breakdowns; <code>qa/play*.mjs</code> drives scripted human input.</p></div>
+    <div class="card"><h4>Deterministic fast-forward</h4><p><code>window.__kriket.fastForward(s)</code> steps the fixed-dt sim exactly, so screenshots and balance sweeps are reproducible to the frame. Physics tuning happens offline in <code>qa/physicslab.ts</code> and <code>qa/swinglab.ts</code>.</p></div>
+  </div>
+</section>
+
+<!-- ═══════════ ROADMAP ═══════════ -->
+<section id="roadmap" class="reveal" data-search="roadmap future plans features drs hawkeye wagon wheel career multiplayer tournament commentary venues super over dls rain left handers fielding control gamepad touch accessibility">
+  <h2><span class="tick">13 /</span> THE ROADMAP TO PERFECTION</h2>
+  <p class="lede">The target is unambiguous: <strong>the perfect cricket sport simulator</strong> — every Laws-correct edge case, every broadcast toy, every format ritual. Here's the build order, from "finishing the core" to "living world". Items marked ✓ already ship.</p>
+
+  <div class="phase">
+    <h3>PHASE I — COMPLETE THE CONTEST <span class="chip g">core sim</span></h3>
+    <ul class="todo">
+      <li class="done"><b>Full delivery physics</b> — seam, conventional + reverse swing, spin, wear, four living pitches</li>
+      <li class="done"><b>Batting cameras</b> — behind-batter and helmet cam, stumps always in the story</li>
+      <li class="done"><b>Keeper crouch through the run-up</b> — the small honesty fixes</li>
+      <li><b>Left-handers</b> — batters and bowlers; mirrored stances, fields and lines that actually react <span class="tag">SIM</span></li>
+      <li><b>The player in the field</b> — user-controlled fielding, picks, dives and throws at both ends <span class="tag">GAMEPLAY</span></li>
+      <li><b>DRS &amp; the third umpire</b> — ball-tracking projection for LBW reviews (the math already runs every shout), ultra-edge for catches <span class="tag">LAWS</span></li>
+      <li><b>The missing Laws</b> — hit-wicket presentation, obstructing the field, timed out, Mankad warnings, short-run penalties <span class="tag">LAWS</span></li>
+      <li><b>Back-foot vocabulary</b> — back-foot drive, late cut, ramp, hook; the sweep variants <span class="tag">GAMEPLAY</span></li>
+      <li><b>Seam-position releases</b> — scrambled seam vs proud presentation as a visible, learnable tell <span class="tag">SIM</span></li>
+    </ul>
+  </div>
+
+  <div class="phase p2">
+    <h3>PHASE II — MAKE IT A MATCH <span class="chip b">structure &amp; story</span></h3>
+    <ul class="todo">
+      <li><b>Full scorecards</b> — batting, bowling, fall of wickets; persistent series and career stats <span class="tag">DATA</span></li>
+      <li><b>Wagon wheel &amp; pitch map</b> — the engine already logs shot endpoints and bounce points; draw them live <span class="tag">ANALYSIS</span></li>
+      <li><b>Hawk-Eye overlay</b> — replay the delivery's tracked path for LBW drama, straight from the integrator <span class="tag">ANALYSIS</span></li>
+      <li><b>Ball-by-ball commentary</b> — a text engine fed by the resolution labels the sim already writes <span class="tag">STORY</span></li>
+      <li><b>Super Over, DLS, rain</b> — interruptions, revised targets, and the tactics of a wet outfield <span class="tag">LAWS</span></li>
+      <li><b>Test-match texture</b> — declarations, the follow-on, session breaks, day-by-day pitch deterioration and cracking <span class="tag">SIM</span></li>
+      <li><b>Highlights &amp; instant replays on demand</b> — the replay buffer is already there; give it a remote control <span class="tag">STORY</span></li>
+    </ul>
+  </div>
+
+  <div class="phase p3">
+    <h3>PHASE III — BUILD THE WORLD <span class="chip y">career &amp; places</span></h3>
+    <ul class="todo">
+      <li><b>Tournaments &amp; series</b> — leagues, knockouts, points tables, a World Cup of all eight nations <span class="tag">MODE</span></li>
+      <li><b>More grounds</b> — distinct dimensions, altitudes (thinner air, less swing), boundaries that aren't round <span class="tag">WORLD</span></li>
+      <li><b>Career mode</b> — create a cricketer, climb from club to country, ratings that age and develop <span class="tag">MODE</span></li>
+      <li><b>Team &amp; player editor</b> — names, kits, ratings; shareable squad files <span class="tag">TOOLS</span></li>
+      <li><b>Dynamic days</b> — weather that turns mid-innings, light that fades, the umpires offering it <span class="tag">SIM</span></li>
+      <li><b>Home crowds</b> — team songs, horns, the Mexican wave when the cricket dies <span class="tag">FEEL</span></li>
+    </ul>
+  </div>
+
+  <div class="phase p4">
+    <h3>PHASE IV — FEEL &amp; ACCESS <span class="chip r">polish for everyone</span></h3>
+    <ul class="todo">
+      <li><b>Gamepad &amp; touch</b> — analog aim, haptics on contact; the full game on a phone <span class="tag">INPUT</span></li>
+      <li><b>Online multiplayer</b> — shared-seed deterministic lockstep; the sim is already replay-pure <span class="tag">NET</span></li>
+      <li><b>The broadcast box</b> — spidercam, stump mic, dressing-room cutaways, lower-thirds, slow-mo <span class="tag">FEEL</span></li>
+      <li><b>Photo mode &amp; saved replays</b> — export the moment, not just the memory <span class="tag">TOOLS</span></li>
+      <li><b>Accessibility</b> — remappable everything, one-handed play, colour-blind-safe UI, timing assist <span class="tag">A11Y</span></li>
+      <li><b>Performance headroom</b> — crowd LOD, instancing, worker-side physics so 4× stays 120 Hz <span class="tag">TECH</span></li>
+    </ul>
+  </div>
+
+  <div class="callout gold"><b>The definition of done:</b> when a session of KRIKET produces a match report indistinguishable from the sport — the collapse, the partnership, the ball that reversed at last — and every word of it was physics, it's finished.</div>
+</section>
+
+<footer>
+  <div class="brand" style="font-weight:900;letter-spacing:4px">KRIKET</div>
+  <p>Built on Three.js (WebGPU / WebGL2) · Humans by Xirtus HumanKit · Physics at a fixed 120 Hz<br/>
+  This manual lives at <code>/manual.html</code> — the game lives at <a href="/">/</a>.</p>
+</footer>
+</main>
+</div>
+
+<script>
+(function () {
+  // ── mobile nav ─────────────────────────────────────────────
+  var nav = document.getElementById('side');
+  document.getElementById('navtoggle').addEventListener('click', function () { nav.classList.toggle('open'); });
+  nav.addEventListener('click', function (e) { if (e.target.tagName === 'A') nav.classList.remove('open'); });
+
+  // ── scrollspy ──────────────────────────────────────────────
+  var links = Array.prototype.slice.call(nav.querySelectorAll('a'));
+  var secs = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+  var spy = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (en.isIntersecting) {
+        links.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id); });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(function (s) { if (s) spy.observe(s); });
+
+  // ── reveal on scroll ───────────────────────────────────────
+  var rev = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); rev.unobserve(en.target); } });
+  }, { threshold: 0.06 });
+  document.querySelectorAll('.reveal').forEach(function (el) { rev.observe(el); });
+
+  // ── search filter ──────────────────────────────────────────
+  var search = document.getElementById('search');
+  var sections = Array.prototype.slice.call(document.querySelectorAll('main section'));
+  search.addEventListener('input', function () {
+    var q = search.value.trim().toLowerCase();
+    sections.forEach(function (s) {
+      if (!q) { s.classList.remove('hidden-by-search'); return; }
+      var hay = (s.getAttribute('data-search') || '') + ' ' + s.textContent.toLowerCase();
+      s.classList.toggle('hidden-by-search', hay.indexOf(q) === -1);
+    });
+  });
+
+  // ── hero ball loop ─────────────────────────────────────────
+  var hb = document.getElementById('heroball');
+  var t0 = performance.now();
+  (function heroTick(now) {
+    var t = ((now - t0) / 1400) % 1;
+    var x = 8 + t * 84;                       // % along the strip
+    var y = Math.sin(t * Math.PI) * -4;       // little bounce arc
+    hb.style.left = x + '%';
+    hb.style.top = 'calc(50% + ' + y.toFixed(1) + 'px)';
+    requestAnimationFrame(heroTick);
+  })(t0);
+
+  // ── delivery visualizer ────────────────────────────────────
+  var cv = document.getElementById('vizcanvas');
+  var ctx = cv.getContext('2d');
+  var W = cv.width, H = cv.height;
+  var BTNS = [
+    { id: 'seam',    k: '1', name: 'Seam-up',  speed: 0.85, swing: 0.05, turn: 0.03, len: 0.62,
+      txt: '<b>Seam-up.</b> Honest pace, wobble off the deck. The stock ball — everything else is measured against it.' },
+    { id: 'out',     k: '2', name: 'Outswing', speed: 0.85, swing: -0.55, turn: -0.05, len: 0.60,
+      txt: '<b>Outswing.</b> Curves away from the right-hander in the air. Full and wide of off: the edge lives here.' },
+    { id: 'in',      k: '3', name: 'Inswing',  speed: 0.85, swing: 0.6, turn: 0.04, len: 0.62,
+      txt: '<b>Inswing.</b> Hoops back into the pads and the stumps. Too straight and it’s worked away; too full and it’s the yorker.' },
+    { id: 'off',     k: '4', name: 'Off-spin', speed: 0.55, swing: 0.10, turn: 0.5, len: 0.58,
+      txt: '<b>Off-spin.</b> Drifts, dips, then grips and turns <b>into</b> the right-hander. The bat–pad gate decides.' },
+    { id: 'leg',     k: '5', name: 'Leg-spin', speed: 0.55, swing: -0.12, turn: -0.85, len: 0.58,
+      txt: '<b>Leg-spin.</b> Fizzed hard: drifts in, drops with top-spin, then rips <b>away</b>. The most beautiful wicket ball there is.' },
+    { id: 'googly',  k: '6', name: 'Googly',   speed: 0.55, swing: -0.12, turn: 0.6, len: 0.58,
+      txt: '<b>Googly.</b> Looks like the leg-break out of the hand — turns the other way. Read it off the pitch at your peril.' },
+    { id: 'slower',  k: '7', name: 'Slower',   speed: 0.42, swing: 0.05, turn: 0.02, len: 0.55,
+      txt: '<b>Slower ball.</b> Same action, arrives a lifetime later. The set batter swings early and chips it to the ring.' },
+  ];
+  var cur = BTNS[1];
+  var animT = 0, lastNow = performance.now();
+
+  var btnWrap = document.getElementById('vizbtns');
+  var stats = document.getElementById('vizstats');
+  BTNS.forEach(function (b) {
+    var el = document.createElement('button');
+    el.textContent = b.k + ' · ' + b.name;
+    el.addEventListener('click', function () { cur = b; animT = 0; syncUI(); });
+    btnWrap.appendChild(el);
+  });
+  function syncUI() {
+    Array.prototype.forEach.call(btnWrap.children, function (el, i) {
+      el.classList.toggle('on', BTNS[i] === cur);
+    });
+    stats.innerHTML = cur.txt;
+  }
+  syncUI();
+
+  // pitch geometry in canvas px (top-down, batter at top)
+  var P = { cx: W / 2, topY: 90, botY: H - 90 };   // crease-to-crease strip
+  var offDir = -1;                                  // off side = screen left for RH batter (behind-bowler view)
+
+  function ballPath(b, t) {
+    // t: 0..1 crease to crease; returns x (px offset from centre) and whether past bounce
+    var flight = Math.min(1, t / b.len);            // portion in the air
+    var x;
+    if (t <= b.len) {
+      x = b.swing * Math.sin(flight * Math.PI * 0.5) * 70 * offDir;
+    } else {
+      var g = (t - b.len) / (1 - b.len);
+      x = (b.swing * 70 + b.turn * g * 78) * offDir;
+    }
+    return x;
+  }
+
+  // pre-baked pitch mottle (random per-frame would flicker)
+  var mottle = [];
+  for (var mi = 0; mi < 90; mi++) mottle.push([Math.random(), Math.random(), 1 + Math.random() * 2.5]);
+
+  function draw(now) {
+    var dt = Math.min(0.05, (now - lastNow) / 1000);
+    lastNow = now;
+    var dur = 2.6 - cur.speed * 1.5;               // slower balls take longer
+    animT += dt / dur;
+    if (animT > 1.35) animT = 0;                   // pause, loop
+    var t = Math.min(1, animT);
+
+    ctx.clearRect(0, 0, W, H);
+
+    // strip
+    var stripW = 150;
+    ctx.fillStyle = 'rgba(210,190,140,0.92)';
+    ctx.fillRect(P.cx - stripW / 2, 40, stripW, H - 80);
+    ctx.fillStyle = 'rgba(0,0,0,0.10)';
+    for (var i = 0; i < mottle.length; i++) ctx.fillRect(P.cx - stripW / 2 + mottle[i][0] * stripW, 40 + mottle[i][1] * (H - 80), mottle[i][2], mottle[i][2]);
+
+    // creases
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 3;
+    [P.topY, P.botY].forEach(function (y) {
+      ctx.beginPath(); ctx.moveTo(P.cx - 95, y); ctx.lineTo(P.cx + 95, y); ctx.stroke();
+    });
+
+    // stumps (batter top, bowler bottom)
+    function stumps(y) {
+      ctx.fillStyle = '#f2e3b2';
+      for (var s = -1; s <= 1; s++) ctx.fillRect(P.cx + s * 8 - 2.5, y - 8, 5, 16);
+    }
+    stumps(P.topY - 14); stumps(P.botY + 14);
+
+    // batter hint (top, off side = left)
+    ctx.fillStyle = 'rgba(54,209,124,0.9)';
+    ctx.beginPath(); ctx.arc(P.cx - 26, P.topY - 2, 9, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.75)'; ctx.font = '600 20px system-ui'; ctx.textAlign = 'center';
+    ctx.fillText('BAT', P.cx - 26, P.topY - 22);
+    ctx.fillStyle = 'rgba(255,255,255,0.55)'; ctx.font = '600 17px system-ui';
+    ctx.fillText('OFF', P.cx - 120, P.topY + 6);
+    ctx.fillText('LEG', P.cx + 120, P.topY + 6);
+
+    // full ghost path
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)'; ctx.lineWidth = 3; ctx.setLineDash([7, 9]);
+    ctx.beginPath();
+    for (var g = 0; g <= 1.001; g += 0.02) {
+      var gx = P.cx + ballPath(cur, g);
+      var gy = P.botY + (P.topY - P.botY) * g;
+      if (g === 0) ctx.moveTo(gx, gy); else ctx.lineTo(gx, gy);
+    }
+    ctx.stroke(); ctx.setLineDash([]);
+
+    // bounce marker
+    var bx = P.cx + ballPath(cur, cur.len);
+    var by = P.botY + (P.topY - P.botY) * cur.len;
+    ctx.strokeStyle = 'rgba(255,210,75,0.9)'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(bx, by, 12, 0, Math.PI * 2); ctx.stroke();
+
+    // travelled trace
+    ctx.strokeStyle = 'rgba(255,120,90,0.95)'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+    ctx.beginPath();
+    for (var u = 0; u <= t; u += 0.02) {
+      var ux = P.cx + ballPath(cur, u);
+      var uy = P.botY + (P.topY - P.botY) * u;
+      if (u === 0) ctx.moveTo(ux, uy); else ctx.lineTo(ux, uy);
+    }
+    ctx.stroke();
+
+    // ball
+    var x = P.cx + ballPath(cur, t);
+    var y = P.botY + (P.topY - P.botY) * t;
+    var grd = ctx.createRadialGradient(x - 4, y - 5, 2, x, y, 13);
+    grd.addColorStop(0, '#ff8a76'); grd.addColorStop(1, '#a01414');
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.arc(x, y, 11, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x, y, 11, -0.6, 0.9); ctx.stroke();
+
+    // labels
+    ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = '700 22px system-ui'; ctx.textAlign = 'left';
+    ctx.fillText(cur.name.toUpperCase() + '  ·  ' + cur.k, 24, 34);
+    if (t >= cur.len && t < cur.len + 0.08) {
+      ctx.fillStyle = 'rgba(255,210,75,0.95)';
+      ctx.fillText('THUD', bx + 18, by + 6);
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
