@@ -116,3 +116,8 @@ ENTER skips the between-ball pause. ESC pauses.
 `shoot.mjs` (screenshots), `sim.mjs`/`sim2.mjs` (full-match AI-vs-AI balance
 sweeps with dismissal/scoring breakdowns), `play.mjs`/`playfull.mjs` (scripted
 human input), `physicslab.ts` (offline physics tuning).
+
+## License
+
+Code: MIT (`LICENSE`). Original procedural assets: CC BY 4.0
+(`ASSET-LICENSE.md`). Third-party components: `THIRD_PARTY.md`.
