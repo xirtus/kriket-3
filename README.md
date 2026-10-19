@@ -1,5 +1,7 @@
 # KRIKET — a next-generation cricket simulation
 
+![KRIKET v3 bat-cam flight](docs/screenshot.jpg)
+
 A full cricket match — bat, bowl, field, run — built on real physics, running in the
 browser on Three.js (WebGPU, WebGL2 fallback). Every delivery is a live physical
 event: seam presentation, swing (conventional and reverse), spin, pitch interaction,
